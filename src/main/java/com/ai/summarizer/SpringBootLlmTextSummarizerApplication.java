@@ -1,4 +1,4 @@
-package com.example.spring_boot_llm_text_summarizer;
+package com.ai.summarizer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

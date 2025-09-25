@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+# choose: openai | gemini
+llm:
+  provider: ${LLM_PROVIDER:gemini}
+  temperature: ${LLM_TEMPERATURE:0.2}
+  max-tokens: ${LLM_MAX_TOKENS:200}
+
+openai:
+  base-url: ${OPENAI_API_BASE:https://api.openai.com/v1}
+  api-key: ${OPENAI_API_KEY:}
+  model: ${OPENAI_MODEL:gpt-4o-mini}
+
+gemini:
+  # NOTE: Gemini uses API key in query param (?key=...) not Authorization header
+  base-url: ${GEMINI_API_BASE:https://generativelanguage.googleapis.com}
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-1.5-flash}
