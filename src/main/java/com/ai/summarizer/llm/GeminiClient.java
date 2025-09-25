@@ -25,16 +25,11 @@ public class GeminiClient implements LlmClient {
 
     // com/ai/summarizer/llm/GeminiClient.java
     @Override
-    public String summarize(String text, Integer maxSentences) {
-        String limit = (maxSentences != null && maxSentences > 0)
-                ? "in at most " + maxSentences + " sentences"
-                : "concisely";
-
+    public String summarize(String userContent, Integer ignoredCap) {
         Map<String, Object> body = Map.of(
                 "contents", List.of(Map.of(
                         "role", "user",
-                        "parts", List.of(Map.of("text",
-                                "Summarize the following text " + limit + " without adding new facts:\n\n" + text))
+                        "parts", List.of(Map.of("text", userContent))
                 )),
                 "generationConfig", Map.of(
                         "temperature", temperature,
@@ -53,24 +48,15 @@ public class GeminiClient implements LlmClient {
                 .bodyToMono(Map.class)
                 .block();
 
-        // If the API returned an error, show it clearly
         if (resp != null && resp.containsKey("error")) {
             Map<String, Object> err = (Map<String, Object>) resp.get("error");
-            Object code = err.get("code");
-            Object message = err.get("message");
-            throw new RuntimeException("Gemini API error (" + code + "): " + message);
+            throw new RuntimeException("Gemini API error (" + err.get("code") + "): " + err.get("message"));
         }
-
-        // Extract: candidates[0].content.parts[0].text
         var candidates = resp == null ? null : (List<Map<String, Object>>) resp.get("candidates");
-        if (candidates == null || candidates.isEmpty()) {
-            throw new RuntimeException("Gemini returned no candidates (check API key/model).");
-        }
+        if (candidates == null || candidates.isEmpty()) return null;
         var content = (Map<String, Object>) candidates.get(0).get("content");
         var parts = content == null ? null : (List<Map<String, Object>>) content.get("parts");
-        if (parts == null || parts.isEmpty()) {
-            throw new RuntimeException("Gemini returned empty parts (check request).");
-        }
+        if (parts == null || parts.isEmpty()) return null;
         return (String) parts.get(0).get("text");
     }
 
